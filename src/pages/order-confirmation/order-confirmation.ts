@@ -25,7 +25,7 @@ export class OrderConfirmationPage {
     public cartService: CartService,
     public clienteService: ClienteService) {
 
-      this.pedido = this.navParams.get('Pedido');
+      this.pedido = this.navParams.get('pedido');
   }
 
   ionViewDidLoad() {
