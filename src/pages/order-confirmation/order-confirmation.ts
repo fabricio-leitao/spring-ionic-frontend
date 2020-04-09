@@ -19,15 +19,16 @@ export class OrderConfirmationPage {
   cartItems: CartItem[];
   cliente: ClienteDTO;
   endereco: EnderecoDTO;
+  codPedido: string;
 
   constructor(
-    public navCtrl: NavController, 
+    public navCtrl: NavController,
     public navParams: NavParams,
     public cartService: CartService,
     public clienteService: ClienteService,
     public pedidoService: PedidoService) {
 
-      this.pedido = this.navParams.get('pedido');
+    this.pedido = this.navParams.get('pedido');
   }
 
   ionViewDidLoad() {
@@ -38,35 +39,46 @@ export class OrderConfirmationPage {
         this.cliente = response as ClienteDTO;
         this.endereco = this.findEdereco(this.pedido.enderecoDeEntrega.id, response['enderecos']);
       },
-      error => {
-        this.navCtrl.setRoot('HomePage');
-      })
+        error => {
+          this.navCtrl.setRoot('HomePage');
+        })
   }
 
-  private findEdereco(id: string, list: EnderecoDTO[]) : EnderecoDTO{
+  private findEdereco(id: string, list: EnderecoDTO[]): EnderecoDTO {
     let position = list.findIndex(x => x.id == id);
     return list[position];
   }
 
-  total() : number {
+  total(): number {
     return this.cartService.total();
   }
 
-  back(){
+  back() {
     this.navCtrl.setRoot('CartPage');
   }
 
-  checkout(){
+  home() {
+    this.navCtrl.setRoot('CategoriasPage');
+  }
+
+  checkout() {
     this.pedidoService.insert(this.pedido)
       .subscribe(response => {
         this.cartService.createOrclearCart();
-        console.log(response.headers.get('location'));
+        this.codPedido = this.extractId(response.headers.get('location'));
       },
-      error => {
-        if(error.status == 403){
-          this.navCtrl.setRoot('HomePage');
-        }
-      })
+        error => {
+          if (error.status == 403) {
+            this.navCtrl.setRoot('HomePage');
+          }
+        })
 
   }
+
+  private extractId(location: string): string {
+    let position = location.lastIndexOf('/');
+    return location.substring(position + 1, location.length);
+
+  }
+
 }
